@@ -28,22 +28,83 @@
 	$vars_out = array();
 	$text_out = array();
 	$obsoletes = array();
+	$categories = array();
+	$category_count = 0;
+
+	$cat_out = array();
 
 	foreach ($d as $row){
 
+		if (!array_key_exists($row['category'], $categories)) {
+			$categories[$row['category']] = $category_count;
+			$category_count++;
+		}
+
+		if (!array_key_exists($categories[$row['category']], $cat_out)) {
+			$cat_out[$categories[$row['category']]] = [];
+		}
+
+		$cat_key = $categories[$row['category']];
+
 		list($key) = explode('.', $row['image']);
+
+
+		// normal outputs
 		$out[$key] = array(
+			// 0
 			array(calc_bytes($row['unified'])),
+			// 1
 			calc_bytes($row['softbank']),
+			// 2
 			calc_bytes($row['google']),
+			// 3
 			$row['short_names'],
+			// 4
 			$row['sheet_x'],
+			// 5
 			$row['sheet_y'],
+			// 6
 			calc_img_has($row),
+			// 7
+			$categories[$row['category']],
+			// 8
+			$row['sort_order'],
+			// 9
+			array(),
+			// 10
+			0,
+		);
+
+		// outputs by category
+		$cat_out[$cat_key][$row['sort_order']] = array(
+			// 0
+			$key,
+			// 1
+			array(calc_bytes($row['unified'])),
+			// 2
+			calc_bytes($row['softbank']),
+			// 3
+			calc_bytes($row['google']),
+			// 4
+			$row['short_names'],
+			// 5
+			$row['sheet_x'],
+			// 6
+			$row['sheet_y'],
+			// 7
+			calc_img_has($row),
+			// 8
+			$categories[$row['category']],
+			// // 8
+			// $row['sort_order'],
+			// 9
+			array(),
+			// 10
 			0,
 		);
 		if ($row['text']){
 			$out[$key][] = $row['text'];
+			$cat_out[$cat_key][$row['sort_order']][] = $row['text'];
 		}
 		if (count($row['texts'])){
 			foreach ($row['texts'] as $txt){
@@ -52,12 +113,23 @@
 		}
 		if ($row['non_qualified']){
 			$out[$key][0][] = calc_bytes($row['non_qualified']);
+			$cat_out[$cat_key][$row['sort_order']][1][] = calc_bytes($row['non_qualified']);
 		}
 		if (count($row['skin_variations'])){
 
 			foreach ($row['skin_variations'] as $k2 => $row2){
 
 				list($sub_key) = explode('.', $row2['image']);
+
+				// include variations as part of $out[$key]
+
+				$cat_out[$cat_key][$row['sort_order']][9][StrToLower($k2)] = array(
+					$sub_key,
+					$row2['sheet_x'],
+					$row2['sheet_y'],
+					calc_img_has($row2),
+					array(calc_bytes($row2['unified'])),
+				);
 
 				$vars_out[$key][StrToLower($k2)] = array(
 					$sub_key,
@@ -138,6 +210,7 @@
 	$json_vars = pretty_print_json($vars_out);
 	$json_text = pretty_print_json($text_out);
 	$obs_map = pretty_print_json($obs_map);
+	$json_by_cat = pretty_print_json($cat_out);
 
 
 	#
@@ -172,6 +245,32 @@
 	}
 	$sets = implode("\n", $sets);
 
+	$catMap = [
+		0 => 6,
+		1 => 3,
+		2 => 7,
+		3 => 4,
+		4 => 2,
+		5 => 1,
+		6 => 0,
+		7 => 5,
+	];
+
+	// flip the categories
+	// $json_categories = pretty_print_json(array_flip($categories));
+	$categories_ordered = array();
+	$categories = array_flip($categories);
+	foreach ($categories as $key => $value) {
+		if (array_key_exists($key, $catMap)) {
+			$categories_ordered[$catMap[$key]] = array(
+				'id' => $key,
+				'name' => $value
+			);
+		}
+	}
+	$json_categories = pretty_print_json($categories_ordered);
+
+
 
 	#
 	# output
@@ -186,6 +285,8 @@
 		'#DATA-VARS#'	=> $json_vars,
 		'#SETS#'	=> $sets,
 		'#OBS-MAP#'	=> $obs_map,
+		'#CATEGORIES#' => $json_categories,
+		'#BY-CAT#' => $json_by_cat
 	);
 
 	echo str_replace(array_keys($map), array_values($map), $template);
