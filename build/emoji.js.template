@@ -44,9 +44,34 @@
 		return document.createTextNode(string);
 	}
 
+	// from twemoji
+
+	// avoid runtime RegExp creation for not so smart,
+	// not JIT based, and old browsers / engines
+	var UFE0Fg = /\uFE0F/g;
+
+	// avoid using a string literal like '\u200D' here because minifiers expand it inline
+	var U200D = String.fromCharCode(0x200D);
+
+	emoji.grabTheRightCodepoints = function(rawText) {
+		return rawText.indexOf('200d') < 0 ?
+			rawText.replace('-fe0f', '') :
+			rawText;
+	}
+
+	var grabTheRightIcon = function(rawText) {
+		// if variant is present as \uFE0F
+		return toCodePoint(rawText.indexOf(U200D) < 0 ?
+			rawText.replace(UFE0Fg, '') :
+			rawText
+		);
+	}
+
 	emoji.UTFToImg = function(str) {
 		return str.replace(re, function(m, p1, p2) {
-			var codeString = toCodePoint(m);
+			var codeString = grabTheRightIcon(m);
+			// var codeString = toCodePoint(m);
+			// TODO; don't reference Admin here or anywhere in here
 			return '<img src="' + Admin.EmojiModule.singleSpriteBase + codeString + '.png" data-id="' + codeString + '" class="emoji">';
 		});
 	}
@@ -60,7 +85,7 @@
 		for (var i = 0; i < eNodes.length; i++) {
 			var codepoints = eNodes[i].dataset.id;
 
-			eNodes[i].parentNode.replaceChild(char(codepoints), eNodes[i]);
+			eNodes[i].parentNode.replaceChild(toChar(codepoints), eNodes[i]);
 		}
 
 		// TODO: this is pretty dirty, at least remove jquery
@@ -71,8 +96,6 @@
 
 	emoji.sheet_size = #SHEET-SIZE#;
 
-	emoji.variations_data = #DATA-VARS#;
-	emoji.obsoletes_data = #OBS-MAP#;
 	emoji.categories = #CATEGORIES#;
 	emoji.by_cat_data = #BY-CAT#;
 
