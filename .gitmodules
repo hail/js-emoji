@@ -1,3 +1,4 @@
 [submodule "build/emoji-data"]
 	path = build/emoji-data
-	url = https://github.com/iamcal/emoji-data.git
+	url = https://github.com/neverthemachineforever/emoji-data.git
+	branch = recategorise

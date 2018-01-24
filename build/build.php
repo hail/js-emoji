@@ -35,6 +35,15 @@
 
 	foreach ($d as $row){
 
+		if ($row['obsoleted_by']){
+			$new_key = StrToLower($row['obsoleted_by']);
+			$obsoletes[$key] = $new_key;
+
+			// I don't really want any obsoletes
+			continue;
+		}
+
+
 		if (!array_key_exists($row['category'], $categories)) {
 			$categories[$row['category']] = $category_count;
 			$category_count++;
@@ -95,16 +104,14 @@
 			calc_img_has($row),
 			// 8
 			$categories[$row['category']],
-			// // 8
-			// $row['sort_order'],
 			// 9
 			array(),
 			// 10
-			0,
+			0
 		);
 		if ($row['text']){
 			$out[$key][] = $row['text'];
-			$cat_out[$cat_key][$row['sort_order']][] = $row['text'];
+			// $cat_out[$cat_key][$row['sort_order']][] = $row['text'];
 		}
 		if (count($row['texts'])){
 			foreach ($row['texts'] as $txt){
@@ -141,10 +148,6 @@
 			}
 		}
 
-		if ($row['obsoleted_by']){
-			$new_key = StrToLower($row['obsoleted_by']);
-			$obsoletes[$key] = $new_key;
-		}
 	}
 
 
@@ -247,13 +250,13 @@
 
 	$catMap = [
 		0 => 6,
-		1 => 3,
-		2 => 7,
-		3 => 4,
-		4 => 2,
-		5 => 1,
-		6 => 0,
-		7 => 5,
+		1 => 7,
+		2 => 4,
+		3 => 0,
+		4 => 1,
+		5 => 5,
+		6 => 2,
+		7 => 3,
 	];
 
 	// flip the categories
