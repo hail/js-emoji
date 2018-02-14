@@ -72,7 +72,7 @@
 			var codeString = grabTheRightIcon(m);
 			// var codeString = toCodePoint(m);
 			// TODO; don't reference Admin here or anywhere in here
-			return '<img src="' + Admin.EmojiModule.singleSpriteBase + codeString + '.png" data-id="' + codeString + '" class="emoji">';
+			return '<img src="' + 'https://d399jpkzn205s7.cloudfront.net/emoji/individual/' + codeString + '.png" data-id="' + codeString + '" class="emoji">';
 		});
 	}
 
@@ -92,6 +92,12 @@
 		var retval = $('<div>').append(frag).html();
 
 		return retval;
+	}
+
+	emoji.remove = function(str) {
+		return str.replace(re, function(m, p1, p2) {
+			return '';
+		});
 	}
 
 	emoji.sheet_size = #SHEET-SIZE#;
