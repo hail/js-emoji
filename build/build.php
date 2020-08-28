@@ -113,7 +113,7 @@
 			$out[$key][] = $row['text'];
 			// $cat_out[$cat_key][$row['sort_order']][] = $row['text'];
 		}
-		if (count($row['texts'])){
+		if (array_key_exists('texts', $row) && !is_null($row['texts']) && count($row['texts'])){
 			foreach ($row['texts'] as $txt){
 				$text_out[$txt] = $row['short_name'];
 			}
@@ -122,7 +122,7 @@
 			$out[$key][0][] = calc_bytes($row['non_qualified']);
 			$cat_out[$cat_key][$row['sort_order']][1][] = calc_bytes($row['non_qualified']);
 		}
-		if (count($row['skin_variations'])){
+		if (array_key_exists('skin_variations', $row) && count($row['skin_variations'])){
 
 			foreach ($row['skin_variations'] as $k2 => $row2){
 
@@ -227,7 +227,7 @@
 		$max = max($max, $row['sheet_x']);
 		$max = max($max, $row['sheet_y']);
 
-		if (count($row['skin_variations'])){
+		if (array_key_exists('skin_variations', $row) && count($row['skin_variations'])){
 			foreach ($row['skin_variations'] as $row2){
 				$max = max($max, $row2['sheet_x']);
 				$max = max($max, $row2['sheet_y']);

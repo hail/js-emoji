@@ -105,6 +105,12 @@
 		});
 	}
 
+	emoji.lengthAproxByWidth = function(str) {
+		return str.replace(re, function(m, p1, p2) {
+			return 'zz';
+		}).length;
+	}
+
 	emoji.sheet_size = #SHEET-SIZE#;
 
 	emoji.categories = #CATEGORIES#;
